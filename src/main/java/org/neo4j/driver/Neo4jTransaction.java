@@ -20,7 +20,7 @@ public class Neo4jTransaction implements AutoCloseable {
 
     private void checkSessionAndTransaction() throws RuntimeException {
         if (this.session == null || !this.session.isOpen() || this.transaction == null || !this.transaction.isOpen()) {
-            throw new RuntimeException("cannot execute action, session or transaction is closed");
+            throw new RuntimeException("Session or transaction is closed");
         }
     }
 
@@ -34,16 +34,21 @@ public class Neo4jTransaction implements AutoCloseable {
         return this.run(query, null);
     }
 
-    public void success() throws Exception {
+    public void success() throws RuntimeException {
         checkSessionAndTransaction();
         this.transaction.success();
     }
 
-    public void failure() throws Exception {
+    public void failure() throws RuntimeException {
         checkSessionAndTransaction();
         this.transaction.failure();
     }
 
+    public String getBookmarkId() {
+        return this.session.lastBookmark();
+    }
+
+    @Override
     public void close() {
         if(this.transaction != null) {
             this.transaction.close();
