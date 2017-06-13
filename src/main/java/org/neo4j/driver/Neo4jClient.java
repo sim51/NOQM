@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class Neo4jClient {
 
@@ -77,6 +78,44 @@ public class Neo4jClient {
         return config;
     }
 
+    private Config mapToDriverConfig(Map<String, Object> props) {
+        Config.ConfigBuilder cb = Config.build();
+
+        if( props.containsKey("neo4j.maxIdleConnectionPoolSize") ) {
+            cb.withMaxIdleSessions((Integer) props.get("neo4j.maxIdleConnectionPoolSize"));
+        }
+
+        if( props.containsKey("neo4j.idleTimeBeforeConnectionTest") ) {
+            cb.withConnectionLivenessCheckTimeout((Long) props.get("neo4j.idleTimeBeforeConnectionTest"), TimeUnit.SECONDS);
+        }
+
+        if( props.containsKey("neo4j.logLeakedSessions") ) {
+            if((Boolean) props.get("neo4j.logLeakedSessions")) {
+                cb.withLeakedSessionsLogging();
+            }
+        }
+
+        if( props.containsKey("neo4j.encrypted") ) {
+            if((Boolean) props.get("neo4j.encrypted")) {
+                cb.withEncryption();
+            }
+        }
+
+        //TODO:
+        if( props.containsKey("neo4j.trustStrategy") ) {
+        }
+        if( props.containsKey("neo4j.routingFailureLimit") ) {
+        }
+        if( props.containsKey("neo4j.routingRetryDelayMillis") ) {
+        }
+        if( props.containsKey("neo4j.connectionTimeoutMillis") ) {
+        }
+        if( props.containsKey("neo4j.retrySettings") ) {
+        }
+
+        return cb.toConfig();
+    }
+
     /**
      * Execute a read cypher query with parameters to Neo4j.
      *
@@ -89,8 +128,8 @@ public class Neo4jClient {
         StatementResult rs = null;
         try (Session session = getInstance().driver.session(mode, bookmarkId)) {
             rs = session.run(query, parameters);
-            session.lastBookmark();
-            Transaction tx = session.beginTransaction();
+            // Start to consume the result to avoid lazy exception
+            rs.hasNext();
         }
         return rs;
     }
