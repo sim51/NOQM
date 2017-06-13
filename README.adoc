@@ -1,15 +1,18 @@
-= Neo4j Simple Client
+= Neo4j Object Query Mapper
 
 == Why this project ?
 
+It's not an OGM (object graph mapper), this project is just a stupid client on top of the neo4j java driver.
+
 * Simple and small Neo4j client
-* A Singleton for the Neo4j Driver (as needed)
-* A simple and single configuration file
-* A stupid object mapping
+* Singleton for the Neo4j Driver (as needed)
+* Simple and single configuration file
+* Stupid query object mapping
 * Transparent for single or cluster architecture
 
 == Installation
 
+TODO
 
 == Configuration
 
@@ -18,9 +21,26 @@ This should be at the root of the classpath.
 
 [source,properties]
 ----
+# Neo4j driver url
 neo4j.url=bolt://localhost
+
+# Neo4j user
 neo4j.user=neo4j
+
+# Neo4j password
 neo4j.password=admin
+
+# (int) Max number of idle connection into the pool
+# neo4j.maxIdleConnectionPoolSize=5
+
+# (long) Threshold of idle time from which we test a connection (in seconds)
+# neo4j.idleTimeBeforeConnectionTest=3600
+
+# (boolean) Do we log leaked session ?
+# neo4j.logLeakedSessions=true
+
+# (boolean) Traffic encrypted ?
+# neo4j.encrypted=true
 ----
 
 NOTE: To make this configuration dynamic, you can use some maven filters
