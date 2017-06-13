@@ -1,2 +1,47 @@
 = Neo4j Simple Client
 
+== Why this project ?
+
+* Simple and small Neo4j client
+* A Singleton for the Neo4j Driver (as needed)
+* A simple and single configuration file
+* A stupid object mapping
+* Transparent for single or cluster architecture
+
+== Installation
+
+
+== Configuration
+
+All the configuration comes from one file : **neo4j-driver.properties**
+This should be at the root of the classpath.
+
+[source,properties]
+----
+neo4j.url=bolt://localhost
+neo4j.user=neo4j
+neo4j.password=admin
+----
+
+NOTE: To make this configuration dynamic, you can use some maven filters
+
+IMPORTANT: You can override those properties, with a second files named : **neo4j-driver-ext.properties** . This file must be also at the root of the classpath, like into the **shared/classes/** folder of a tomcat server.
+
+== How to use it ?
+
+Just call it like this for a read query
+
+[source,java]
+----
+import org.neo4j.driver.*
+import static org.neo4j.driver.v1.Values.parameters;
+...
+Neo4jClient.read("MATCH (n:Person { name:$name, born:$born }) RETURN n", parameters( "name", "Keanu Reeves", "born", 1964 ));
+----
+
+And for a write query :
+
+[source,java]
+----
+Neo4jClient.write("CREATE (n:Person { name:$name, born:$born }) RETURN n", parameters( "name", "Keanu Reeves", "born", 1964 ))
+----
