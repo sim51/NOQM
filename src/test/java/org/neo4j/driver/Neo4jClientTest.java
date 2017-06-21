@@ -1,22 +1,21 @@
 package org.neo4j.driver;
 
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.neo4j.driver.v1.StatementResult;
 import org.neo4j.driver.v1.types.Node;
 import org.neo4j.harness.junit.Neo4jRule;
-
-import java.io.File;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
 public class Neo4jClientTest {
 
     @ClassRule
-    public static Neo4jRule neo4j = new Neo4jRule()
-            .withConfig("dbms.connector.bolt.listen_address", ":5001")
-            .withFixture(new File("./src/test/resources/cypher/movie.cyp"));
+    public static Neo4jRule neo4j = new Neo4jRule();
+
+    @BeforeClass
+    public static void before() throws Exception {
+        TestHelper.initDb(neo4j.boltURI().toString());
+    }
 
     @Test
     public void autocommit_read_query_result_should_succeed(){
@@ -50,6 +49,7 @@ public class Neo4jClientTest {
 
     @Test
     public void tx_write_with_commit_should_succeed(){
+        String bookmarkId = null;
         try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction() ) {
             StatementResult rs = tx.run("CREATE (me:Person { name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 ));
             Node me = rs.single().get("me").asNode();
@@ -59,9 +59,10 @@ public class Neo4jClientTest {
 
             tx.run("MATCH (n), (m) WHERE id(n)=$id1 AND id(m)=$id2 CREATE (n)-[:ACTED_IN]->(m) ", parameters( "id1", me.id(), "id2", movie.id()));
             tx.success();
+            bookmarkId = tx.getBookmarkId();
         }
 
-        StatementResult rs = Neo4jClient.read("MATCH (n:Person { name:$name, born:$born })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m", parameters( "name", "Benoit", "born", 1983, "title", "My Favorite film"));
+        StatementResult rs = Neo4jClient.read("MATCH (n:Person { name:$name, born:$born })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m", parameters( "name", "Benoit", "born", 1983, "title", "My Favorite film"), bookmarkId);
         Assert.assertEquals(1, rs.list().size());
 
         // Reset modifications
@@ -71,7 +72,7 @@ public class Neo4jClientTest {
 
     @Test
     public void tx_write_with_rollback_should_succeed(){
-        try ( Neo4jTransaction tx = Neo4jClient.getReadTransaction() ) {
+        try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction() ) {
             StatementResult rs = tx.run("CREATE (me:Person { name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 ));
             Node me = rs.single().get("me").asNode();
 

@@ -500,6 +500,4 @@ CREATE
   (JamesThompson)-[:REVIEWED {summary:'Fun, but a little far fetched', rating:65}]->(TheDaVinciCode)
 
 WITH TomH as a
-MATCH (a)-[:ACTED_IN]->(m)<-[:DIRECTED]-(d) RETURN a,m,d LIMIT 10
-
-;
+MATCH (n) RETURN count(*);

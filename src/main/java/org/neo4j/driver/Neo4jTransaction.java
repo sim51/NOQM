@@ -50,14 +50,8 @@ public class Neo4jTransaction implements AutoCloseable {
 
     @Override
     public void close() {
-        if(this.transaction != null) {
-            this.transaction.close();
-            this.transaction = null;
-        }
-        if(this.session != null) {
-            this.session.close();
-            this.session = null;
-        }
+        this.transaction.close();
+        this.session.close();
     }
 
 }
