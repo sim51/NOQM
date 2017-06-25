@@ -2,6 +2,12 @@ package org.neo4j.driver;
 
 import org.neo4j.driver.v1.*;
 
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.Spliterators.*;
+
 public class Neo4jClient {
 
     /**
@@ -19,7 +25,7 @@ public class Neo4jClient {
      *
      * @return The Neo4jClient
      */
-    private static synchronized Neo4jClient getInstance(){
+    private static synchronized Neo4jClient getInstance() {
         if (client == null) {
             try {
                 client = new Neo4jClient();
@@ -42,94 +48,98 @@ public class Neo4jClient {
         Configuration config = new Configuration();
 
         // Create the Neo4j driver instance
-        this.driver = GraphDatabase.driver(
-                config.getStringOrDefault("neo4j.url", "bolt://localhost"),
-                AuthTokens.basic(
-                        config.getStringOrDefault("neo4j.user", "neo4j"),
-                        config.getStringOrDefault("neo4j.password", "neo4j")
-                ),
-                config.toDriverConfig()
-        );
+        this.driver = GraphDatabase.driver(config.getStringOrDefault("neo4j.url", "bolt://localhost"),
+                AuthTokens.basic(config.getStringOrDefault("neo4j.user", "neo4j"), config.getStringOrDefault("neo4j.password", "neo4j")),
+                config.toDriverConfig());
     }
 
-    @Override
-    public void finalize() throws Throwable {
-        if (this.driver != null) {
-            driver.close();
+    public static void destroy() {
+        if (client != null) {
+            client.driver.close();
+            client = null;
         }
     }
 
 
     /*-------------------------------*/
-	/*       Auto Commit mode        */
+    /*       Auto Commit mode        */
 	/*-------------------------------*/
 
     /**
      * Execute a read cypher query with parameters to Neo4j.
-s     */
-    private static StatementResult run(String query, Value parameters, AccessMode mode, String bookmarkId) {
-        StatementResult rs = null;
-        try (Session session = getInstance().driver.session(mode, bookmarkId)) {
-            rs = session.run(query, parameters);
-            // Start to consume the result to avoid lazy exception
-            rs.hasNext();
+     */
+    private static Stream<Record> run(String query, Value parameters, AccessMode mode, String bookmarkId) {
+        UncheckedCloseable close = null;
+        try {
+            Session session = getInstance().driver.session(mode, bookmarkId);
+            close = UncheckedCloseable.wrap(session);
+            StatementResult result = session.run(query, parameters);
+            return StreamSupport.stream(spliterator(result, Long.MAX_VALUE, Spliterator.ORDERED), false).onClose(close);
+        } catch (Exception e) {
+            if (close != null) {
+                try {
+                    close.close();
+                } catch (Exception ex) {
+                    e.addSuppressed(ex);
+                }
+            }
+            throw new Neo4jClientException(e);
         }
-        return rs;
     }
 
     /**
      * Execute a read cypher query to Neo4j.
      */
-    public static StatementResult read(String query) {
+    public static Stream<Record> read(String query) {
         return run(query, Values.EmptyMap, AccessMode.READ, null);
     }
 
     /**
      * Execute a read cypher query to Neo4j with a bookmarkId.
      */
-    public static StatementResult read(String query, String bookmarkId) {
+    public static Stream<Record> read(String query, String bookmarkId) {
         return run(query, Values.EmptyMap, AccessMode.READ, bookmarkId);
     }
 
     /**
      * Execute a read cypher query to Neo4j with parameters.
      */
-    public static StatementResult read(String query, Value parameters) {
+    public static Stream<Record> read(String query, Value parameters) {
         return run(query, parameters, AccessMode.READ, null);
     }
 
     /**
      * Execute a read cypher query to Neo4j with parameters and bookmarkId.
      */
-    public static StatementResult read(String query, Value parameters, String bookmarkId) {
+    public static Stream<Record> read(String query, Value parameters, String bookmarkId) {
         return run(query, parameters, AccessMode.READ, bookmarkId);
     }
 
     /**
      * Execute a write cypher query to Neo4j.
      */
-    public static StatementResult write(String query) {
+    public static Stream<Record> write(String query) {
         return run(query, Values.EmptyMap, AccessMode.WRITE, null);
     }
 
     /**
      * Execute a write cypher query to Neo4j with a bookmarkId.
      */
-    public static StatementResult write(String query, String bookmarkId) {
+    public static Stream<Record> write(String query, String bookmarkId) {
         return run(query, Values.EmptyMap, AccessMode.WRITE, bookmarkId);
     }
 
     /**
      * Execute a write cypher query to Neo4j with parameters.
      */
-    public static StatementResult write(String query, Value parameters) {
+    public static Stream<Record> write(String query, Value parameters) {
         return run(query, parameters, AccessMode.WRITE, null);
     }
 
     /**
      * Execute a write cypher query to Neo4j with parameters and bookmarkId.
      */
-    public static StatementResult write(String query, Value parameters, String bookmarkId) {
+    public static Stream<Record> write(String query, Value parameters, String bookmarkId) {
         return run(query, parameters, AccessMode.WRITE, bookmarkId);
     }
 

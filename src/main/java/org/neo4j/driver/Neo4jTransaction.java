@@ -1,9 +1,12 @@
 package org.neo4j.driver;
 
-import org.neo4j.driver.v1.Session;
-import org.neo4j.driver.v1.StatementResult;
-import org.neo4j.driver.v1.Transaction;
-import org.neo4j.driver.v1.Value;
+import org.neo4j.driver.v1.*;
+
+import java.util.Spliterator;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import static java.util.Spliterators.spliterator;
 
 /**
  * Wrapper on Neo4j Transaction.
@@ -20,16 +23,22 @@ public class Neo4jTransaction implements AutoCloseable {
 
     private void checkSessionAndTransaction() throws RuntimeException {
         if (this.session == null || !this.session.isOpen() || this.transaction == null || !this.transaction.isOpen()) {
-            throw new RuntimeException("Session or transaction is closed");
+            throw new Neo4jClientException("Session or transaction is closed");
         }
     }
 
-    public StatementResult run(String query, Value params) throws RuntimeException {
+    public Stream<Record> run(String query, Value params) throws RuntimeException {
         checkSessionAndTransaction();
-        return this.transaction.run(query, params);
+        UncheckedCloseable close = null;
+        try {
+            StatementResult result = this.transaction.run(query, params);
+            return StreamSupport.stream(spliterator(result, Long.MAX_VALUE, Spliterator.ORDERED), false);
+        } catch (Exception e) {
+            throw new Neo4jClientException(e);
+        }
     }
 
-    public StatementResult run(String query) throws RuntimeException {
+    public Stream<Record> run(String query) throws RuntimeException {
         checkSessionAndTransaction();
         return this.run(query, null);
     }
