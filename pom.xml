@@ -4,24 +4,77 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.neo4j.example</groupId>
-    <artifactId>neo4j-client</artifactId>
+    <groupId>org.neo4j.contrib</groupId>
+    <artifactId>noqm</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <!-- =========== -->
+    <!-- = License = -->
+    <!-- =========== -->
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://raw.githubusercontent.com/sim51/noqm/master/LICENSE</url>
+        </license>
+    </licenses>
+
+    <!-- ======= -->
+    <!-- = SCM = -->
+    <!-- ======= -->
+    <scm>
+        <url>https://github.com/sim51/NOQM</url>
+        <connection>scm:git:git://github.com/sim51/NOQM.git</connection>
+        <developerConnection>scm:git:git@github.com:sim51/NOQM.git</developerConnection>
+    </scm>
+
+    <!-- ============== -->
+    <!-- = Bugtracker = -->
+    <!-- ============== -->
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/sim51/NOQM/issues</url>
+    </issueManagement>
+
+    <!-- ====================== -->
+    <!-- = Project developers = -->
+    <!-- ====================== -->
+    <developers>
+        <developer>
+            <id>bsimard</id>
+            <name>Benoît Simard</name>
+            <email>github@bsimard.com</email>
+        </developer>
+    </developers>
+
+    <!-- ============== -->
+    <!-- = Properties = -->
+    <!-- ============== -->
     <properties>
         <!-- Deps version -->
         <neo4j.version>3.2.1</neo4j.version>
         <neo4j.driver.version>1.3.1</neo4j.driver.version>
         <junit.version>4.12</junit.version>
         <lombok.version>1.16.16</lombok.version>
+
         <!-- Project configuration  -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
+
+        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
+        <github.global.server>github</github.global.server>
+
+        <!-- maven plugin version -->
+        <maven.deploy.plugin>2.8.1</maven.deploy.plugin>
+        <maven.site.github.plugin>0.12</maven.site.github.plugin>
+
         <!-- maven plugin configuration  -->
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
 
+    <!-- ================ -->
+    <!-- = Dependencies = -->
+    <!-- ================ -->
     <dependencies>
         <dependency>
             <groupId>org.neo4j.driver</groupId>
@@ -54,5 +107,62 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <!-- ========= -->
+    <!-- = Build = -->
+    <!-- ========= -->
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.deploy.plugin}</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>${maven.site.github.plugin}</version>
+                <configuration>
+                    <!-- git commit message -->
+                    <message>Maven artifacts for ${project.version}</message>
+                    <!-- disable webpage processing -->
+                    <noJekyll>true</noJekyll>
+                    <!-- merge -->
+                    <merge>true</merge>
+                    <!-- matches distribution management repository url above -->
+                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+                    <!-- remote branch name -->
+                    <branch>refs/heads/mvn-repo</branch>
+                    <includes><include>**/*</include></includes>
+                    <!-- github repo name -->
+                    <repositoryName>NOQM</repositoryName>
+                    <!-- github username  -->
+                    <repositoryOwner>sim51</repositoryOwner>
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- =========================== -->
+    <!-- = Distribution management = -->
+    <!-- =========================== -->
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+    </distributionManagement>
 
 </project>

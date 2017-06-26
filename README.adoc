@@ -18,7 +18,32 @@ It's not an OGM (object graph mapper), this project is just a stupid client on t
 
 == Installation
 
-TODO
+Firstly you have to add the maven repository of the project to your *pom.xml* :
+
+[source,xml]
+----
+<repositories>
+    <repository>
+        <id>NOQM-mvn-repo</id>
+        <url>https://raw.github.com/sim51/NOQM/mvn-repo/</url>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+        </snapshots>
+    </repository>
+</repositories>
+----
+
+Then you can add the dependency :
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.neo4j.contrib</groupId>
+    <artifactId>NOQM</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+----
 
 == Configuration
 
