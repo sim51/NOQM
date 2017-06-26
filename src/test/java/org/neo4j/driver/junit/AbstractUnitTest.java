@@ -37,15 +37,6 @@ public abstract class AbstractUnitTest {
             tx.success();
         }
 
-        // Wait until a replica as data
-        Boolean stop = Boolean.FALSE;
-        while(!stop) {
-            try(Stream<Record> rs = Neo4jClient.read("MATCH (n) RETURN count(*)")) {
-                if(rs.findFirst().get().get(0).asInt() > 0) {
-                    stop = Boolean.TRUE;
-                }
-            }
-        }
     }
 
     @AfterClass
