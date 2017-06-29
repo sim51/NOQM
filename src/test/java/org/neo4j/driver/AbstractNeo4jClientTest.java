@@ -1,8 +1,10 @@
 package org.neo4j.driver;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.driver.junit.AbstractSingleUnitTest;
+import org.neo4j.driver.junit.AbstractUnitTest;
+import org.neo4j.driver.junit.CustomNeo4jRule;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.types.Node;
 
@@ -10,7 +12,11 @@ import java.util.stream.Stream;
 
 import static org.neo4j.driver.v1.Values.parameters;
 
-public class Neo4jClientTest extends AbstractSingleUnitTest {
+abstract class AbstractNeo4jClientTest extends AbstractUnitTest {
+
+    public AbstractNeo4jClientTest(CustomNeo4jRule rule) {
+        super(rule);
+    }
 
     @Test
     public void bad_cypher_query_should_result_to_error(){
@@ -31,21 +37,17 @@ public class Neo4jClientTest extends AbstractSingleUnitTest {
 
     @Test
     public void autocommit_write_query_should_succeed(){
-        try (Stream<Record> rs = Neo4jClient.write("CREATE (me:Person { name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 ))) {
-
+        try (Stream<Record> rs = Neo4jClient.write(
+                "CREATE (me:Person { name:$name, born:$born }) RETURN me",
+                parameters( "name", "Benoit", "born", 1983 ))
+        ) {
             Node me = rs.findFirst().get().get("me").asNode();
 
+            // Assertions
             Assert.assertTrue(me.hasLabel("Person"));
             Assert.assertEquals("Benoit", me.get("name").asString());
             Assert.assertEquals(1983, me.get("born").asInt());
         }
-
-
-        // Reset modifications
-        Neo4jClient
-                .write("MATCH (me:Person { name:$name, born:$born }) DELETE me", parameters( "name", "Benoit", "born", 1983 ))
-                .close();
-        this.autocommit_read_query_result_should_succeed();
     }
 
     @Test
@@ -60,44 +62,66 @@ public class Neo4jClientTest extends AbstractSingleUnitTest {
 
     @Test
     public void tx_write_with_commit_should_succeed(){
-        String bookmarkId = null;
+        String bkid = null;
+
+        // Creation of (User)-[:ACTED_IN]->(Movie) in a transaction
         try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction() ) {
+
+            // Create person
             Stream<Record> rs = tx.run("CREATE (me:Person { name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 ));
             Node me = rs.findFirst().get().get("me").asNode();
 
+            // Create movie
             Stream<Record> rs2 = tx.run("CREATE (movie:Movie { title:$title }) RETURN movie", parameters( "title", "My Favorite film"));
             Node movie = rs2.findFirst().get().get("movie").asNode();
 
-            tx.run("MATCH (n), (m) WHERE id(n)=$id1 AND id(m)=$id2 CREATE (n)-[:ACTED_IN]->(m) ", parameters( "id1", me.id(), "id2", movie.id()));
+            // Create relationship
+            tx.run(
+                    "MATCH (n), (m) WHERE id(n)=$id1 AND id(m)=$id2 CREATE (n)-[:ACTED_IN]->(m) ",
+                    parameters( "id1", me.id(), "id2", movie.id())
+            );
+
             tx.success();
-            bookmarkId = tx.getBookmarkId();
+            bkid = tx.getBookmarkId();
         }
 
-        Stream<Record> rs = Neo4jClient.read("MATCH (n:Person { name:$name, born:$born })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m", parameters( "name", "Benoit", "born", 1983, "title", "My Favorite film"), bookmarkId);
-        Assert.assertEquals(1, rs.count());
+        // Check the creation ( /!\ take care of bookmarkid )
+        try (Stream<Record> rs = Neo4jClient.read(
+                "MATCH (n:Person { name:$name })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m",
+                parameters( "name", "Benoit", "title", "My Favorite film"),
+                bkid)
+        ){
+            Assert.assertEquals(1, rs.count());
+        }
 
-        // Reset modifications
-        Neo4jClient
-                .write("MATCH (n:Person { name:$name, born:$born })-[:ACTED_IN]->(m:Movie { title:$title }) DETACH DELETE n, m", parameters( "name", "Benoit", "born", 1983, "title", "My Favorite film"))
-                .close();
-        this.autocommit_read_query_result_should_succeed();
     }
 
     @Test
     public void tx_write_with_rollback_should_succeed(){
+        String bkid = null;
+
+        // Failure of (User)-[:ACTED_IN]->(Movie) in a transaction
         try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction() ) {
-            Stream<Record> rs = tx.run("CREATE (me:Person { name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 ));
+            Stream<Record> rs = tx.run("CREATE (me:Person{ name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 ));
             Node me = rs.findFirst().get().get("me").asNode();
 
-            Stream<Record> rs2 = tx.run("CREATE (movie:Movie { title:$title }) RETURN movie", parameters( "title", "My Favorite film"));
+            Stream<Record> rs2 = tx.run("CREATE (movie:Movie{ title:$title }) RETURN movie", parameters( "title", "My Favorite film"));
             Node movie = rs2.findFirst().get().get("movie").asNode();
 
             tx.run("MATCH (n), (m) WHERE id(n)=$id1 AND id(m)=$id2 CREATE (n)-[:ACTED_IN]->(m) ", parameters( "id1", me.id(), "id2", movie.id()));
             tx.failure();
+
+            bkid = tx.getBookmarkId();
         }
 
-        Stream<Record> rs = Neo4jClient.read("MATCH (n:Person { name:$name, born:$born })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m", parameters( "name", "Benoit", "born", 1983, "title", "My Favorite film"));
-        Assert.assertEquals(0, rs.count());
+        // Check the NO creation ( /!\ take care of bookmarkid )
+        try (Stream<Record> rs = Neo4jClient.read(
+                "MATCH (n:Person { name:$name, born:$born })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m",
+                parameters( "name", "Benoit", "born", 1983, "title", "My Favorite film"),
+                bkid )
+        ){
+            Assert.assertEquals(0, rs.count());
+        }
     }
 
     @Test

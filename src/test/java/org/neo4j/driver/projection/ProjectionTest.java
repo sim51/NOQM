@@ -1,21 +1,25 @@
 package org.neo4j.driver.projection;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 import org.neo4j.driver.Neo4jClient;
 import org.neo4j.driver.Neo4jClientException;
-import org.neo4j.driver.junit.AbstractSingleUnitTest;
-import org.neo4j.driver.projection.Projections;
+import org.neo4j.driver.junit.AbstractUnitTest;
+import org.neo4j.driver.junit.CustomNeo4jRule;
 import org.neo4j.driver.projection.pojo.Movie;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.types.Node;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ProjectionTest extends AbstractSingleUnitTest {
+public class ProjectionTest extends AbstractUnitTest {
+
+    public ProjectionTest() {
+        super(new CustomNeo4jRule(CustomNeo4jRule.Mode.SINGLE));
+    }
 
     @Test
     public void test_single_projection_with_not_single_result_should_fail() {
