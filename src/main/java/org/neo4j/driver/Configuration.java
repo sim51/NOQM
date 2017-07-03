@@ -112,7 +112,7 @@ public class Configuration {
      * @param value Default value if nkeyis not found.
      * @return The desired value as a string.
      */
-    private String getStringOrDefault(String key, String value) {
+    public String getStringOrDefault(String key, String value) {
         return (String) this.config.getOrDefault(key, value);
     }
 }
