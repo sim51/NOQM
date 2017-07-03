@@ -65,7 +65,7 @@ public class DynamicClassConstructor<T> {
             if (this.setters.containsKey(key)) {
                 Method setter = this.setters.get(key);
                 Type pType = setter.getGenericParameterTypes()[0];
-                Object prop = ConvertionHelper.convertDriverValueTo(pType, value);
+                Object prop = ConversionHelper.convertDriverValueTo(pType, value);
                 if (value != null) {
                     setter.invoke(obj, prop);
                 }
