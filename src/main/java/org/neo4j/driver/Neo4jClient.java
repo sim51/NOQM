@@ -1,13 +1,17 @@
 package org.neo4j.driver;
 
+import org.neo4j.driver.exception.Neo4jClientException;
 import org.neo4j.driver.v1.*;
 
 import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import static java.util.Spliterators.*;
+import static java.util.Spliterators.spliterator;
 
+/**
+ * Main class of this project that handles database actions.
+ */
 public class Neo4jClient {
 
     /**
@@ -19,6 +23,20 @@ public class Neo4jClient {
      * Neo4j driver instance.
      */
     private Driver driver;
+
+    /**
+     * Constructor of Neo4j client.
+     * It just create a Neo4j driver instance with the help of the <code>neo4j-driver.properties</code> file.
+     */
+    private Neo4jClient() throws Exception {
+        // Load the configuration
+        Configuration config = new Configuration();
+
+        // Create the Neo4j driver instance
+        this.driver = GraphDatabase.driver(config.getStringOrDefault("neo4j.url", "bolt://localhost"),
+                AuthTokens.basic(config.getStringOrDefault("neo4j.user", "neo4j"), config.getStringOrDefault("neo4j.password", "neo4j")),
+                config.toDriverConfig());
+    }
 
     /**
      * Retrieve the singleton instance.
@@ -40,19 +58,9 @@ public class Neo4jClient {
     }
 
     /**
-     * Constructor of Neo4j client.
-     * It just create a Neo4j driver instance with the help of the <code>neo4j-driver.properties</code> file.
+     * Destructor of this object.
+     * It close all underlying object if needed.
      */
-    private Neo4jClient() throws Exception {
-        // Load the configuration
-        Configuration config = new Configuration();
-
-        // Create the Neo4j driver instance
-        this.driver = GraphDatabase.driver(config.getStringOrDefault("neo4j.url", "bolt://localhost"),
-                AuthTokens.basic(config.getStringOrDefault("neo4j.user", "neo4j"), config.getStringOrDefault("neo4j.password", "neo4j")),
-                config.toDriverConfig());
-    }
-
     public static void destroy() {
         if (client != null) {
             client.driver.close();
@@ -63,7 +71,7 @@ public class Neo4jClient {
 
     /*-------------------------------*/
     /*       Auto Commit mode        */
-	/*-------------------------------*/
+    /*-------------------------------*/
 
     /**
      * Execute a read cypher query with parameters to Neo4j.
@@ -149,24 +157,36 @@ public class Neo4jClient {
 	/*-------------------------------*/
 
     /**
-     * Retrieve a Transaction session.
+     * Return a Client transaction corresponding the <code>mode</code>\ and <code>bookmarkId</code>.
      */
     private static Neo4jTransaction getTransaction(AccessMode mode, String bookmarkId) {
         return new Neo4jTransaction(getInstance().driver.session(mode, bookmarkId));
     }
 
+    /**
+     * Retrieve a read transaction.
+     */
     public static Neo4jTransaction getReadTransaction() {
         return getTransaction(AccessMode.READ, null);
     }
 
+    /**
+     * Retrieve a read transaction with a bookmarkId.
+     */
     public static Neo4jTransaction getReadTransaction(String bookmarkId) {
         return getTransaction(AccessMode.READ, bookmarkId);
     }
 
+    /**
+     * Retrieve a write.
+     */
     public static Neo4jTransaction getWriteTransaction() {
         return getTransaction(AccessMode.WRITE, null);
     }
 
+    /**
+     * Retrieve a write transaction with a bookmarkId.
+     */
     public static Neo4jTransaction getWriteTransaction(String bookmarkId) {
         return getTransaction(AccessMode.WRITE, bookmarkId);
     }
