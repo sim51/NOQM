@@ -1,5 +1,6 @@
 package org.neo4j.driver;
 
+import org.neo4j.driver.exception.Neo4jClientException;
 import org.neo4j.driver.v1.*;
 
 import java.util.Spliterator;
@@ -9,27 +10,37 @@ import java.util.stream.StreamSupport;
 import static java.util.Spliterators.spliterator;
 
 /**
- * Wrapper on Neo4j Transaction.
+ * Client transaction.
  */
 public class Neo4jTransaction implements AutoCloseable {
 
-    private Session     session;
+    /**
+     * Neo4j's underlying session.
+     */
+    private Session session;
+
+    /**
+     * Neo4j's underlying transaction
+     */
     private Transaction transaction;
 
+    /**
+     * Default constructor with a session.
+     */
     public Neo4jTransaction(Session session) {
         this.session = session;
         this.transaction = session.beginTransaction();
     }
 
-    private void checkSessionAndTransaction() throws RuntimeException {
-        if (this.session == null || !this.session.isOpen() || this.transaction == null || !this.transaction.isOpen()) {
-            throw new Neo4jClientException("Session or transaction is closed");
-        }
-    }
-
-    public Stream<Record> run(String query, Value params) throws RuntimeException {
+    /**
+     * Execute the given cypher query with its parameters.
+     *
+     * @param query  Cypher query
+     * @param params Query's parameters
+     * @return A Stream of record
+     */
+    public Stream<Record> run(String query, Value params) {
         checkSessionAndTransaction();
-        UncheckedCloseable close = null;
         try {
             StatementResult result = this.transaction.run(query, params);
             return StreamSupport.stream(spliterator(result, Long.MAX_VALUE, Spliterator.ORDERED), false);
@@ -38,17 +49,21 @@ public class Neo4jTransaction implements AutoCloseable {
         }
     }
 
-    public Stream<Record> run(String query) throws RuntimeException {
+    /**
+     * Execute the given cypher query without parameters.
+     *
+     * @param query Cypher query
+     * @return A Stream of record
+     */
+    public Stream<Record> run(String query) {
         checkSessionAndTransaction();
         return this.run(query, null);
     }
 
     /**
      * Commit and close the current transaction.
-     *
-     * @throws RuntimeException
      */
-    public void success() throws RuntimeException {
+    public void success() {
         checkSessionAndTransaction();
         this.transaction.success();
         this.transaction.close();
@@ -56,32 +71,39 @@ public class Neo4jTransaction implements AutoCloseable {
 
     /**
      * Rollback and close the current transaction.
-     *
-     * @throws RuntimeException
      */
-    public void failure() throws RuntimeException {
+    public void failure() {
         checkSessionAndTransaction();
         this.transaction.failure();
         this.transaction.close();
     }
 
     /**
-     * Return the last bookmarkId.
-     * Be careful, it's only works when the underline transaction has been close.
+     * Get the last bookmarkId.
+     * It's only works when the underline transaction has been close.
      * So you have to call {@link #failure()} or {@link #success()} before.
      *
-     * @return
+     * @return the latest bookmarkId of this session.
      */
     public String getBookmarkId() {
         return this.session.lastBookmark();
     }
 
-    @Override
-    public void close() {
-        if(this.transaction !=null)
+    @Override public void close() {
+        if (this.transaction != null)
             this.transaction.close();
-        if(this.session !=null)
+        if (this.session != null)
             this.session.close();
+    }
+
+    /**
+     * Check if one the underlying session or transaction is closed or not.
+     * If so, a {@link Neo4jClientException} is thrown.
+     */
+    private void checkSessionAndTransaction() throws Neo4jClientException {
+        if (this.session == null || !this.session.isOpen() || this.transaction == null || !this.transaction.isOpen()) {
+            throw new Neo4jClientException("Session or transaction is closed");
+        }
     }
 
 }
