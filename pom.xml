@@ -51,10 +51,10 @@
     <!-- ============== -->
     <properties>
         <!-- Deps version -->
-        <neo4j.version>3.2.1</neo4j.version>
-        <neo4j.driver.version>1.4.0</neo4j.driver.version>
+        <neo4j.version>3.2.2</neo4j.version>
+        <neo4j.driver.version>1.4.1</neo4j.driver.version>
         <junit.version>4.12</junit.version>
-        <lombok.version>1.16.16</lombok.version>
+        <lombok.version>1.16.18</lombok.version>
 
         <!-- Project configuration  -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -81,7 +81,7 @@
 
         <!-- maven plugin version -->
         <maven.plugin.deploy>2.8.2</maven.plugin.deploy>
-        <maven.plugin.site>3.5</maven.plugin.site>
+        <maven.plugin.site>3.6</maven.plugin.site>
         <maven.plugin.site.github>0.12</maven.plugin.site.github>
         <maven.plugin.jxr>2.5</maven.plugin.jxr>
         <maven.plugin.surefire>2.20</maven.plugin.surefire>
@@ -89,23 +89,23 @@
         <maven.plugin.checkstyle>2.17</maven.plugin.checkstyle>
         <maven.plugin.projectinfo>2.9</maven.plugin.projectinfo>
         <maven.plugin.pmd>3.8</maven.plugin.pmd>
-        <maven.plugin.findbugs>3.0.1</maven.plugin.findbugs>
-        <maven.plugin.version>2.2</maven.plugin.version>
+        <maven.plugin.findbugs>3.0.4</maven.plugin.findbugs>
+        <maven.plugin.version>2.4</maven.plugin.version>
         <maven.plugin.taglist>2.4</maven.plugin.taglist>
         <maven.plugin.changelog>2.3</maven.plugin.changelog>
         <maven.plugin.cobertura>2.7</maven.plugin.cobertura>
         <maven.plugin.coverall>4.1.0</maven.plugin.coverall>
-        <maven.plugin.asciidoctor>1.5.3</maven.plugin.asciidoctor>
+        <maven.plugin.asciidoctor>1.5.5</maven.plugin.asciidoctor>
         <maven.plugin.scm-publish>1.1</maven.plugin.scm-publish>
 
         <!-- Asciidoctor version -->
-        <asciidoctorj.version>1.5.4</asciidoctorj.version>
-        <jruby.version>1.7.21</jruby.version>
+        <asciidoctorj.version>1.5.5</asciidoctorj.version>
+        <jruby.version>1.7.22</jruby.version>
 
         <!-- Maven site skin -->
         <site.skin.groupId>org.apache.maven.skins</site.skin.groupId>
         <site.skin.artifactId>maven-fluido-skin</site.skin.artifactId>
-        <site.skin.version>1.5</site.skin.version>
+        <site.skin.version>1.6</site.skin.version>
 
     </properties>
 
