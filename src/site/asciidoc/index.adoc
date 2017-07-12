@@ -1,17 +1,8 @@
 = Neo4j Object Query Mapper
 Benoit Simard <github@bsimard.com>
-:experimental:
-:toc:
-:toc-placement: preamble
-:toc-title: pass:[<b>Table of Contents</b>]
-:outfilesuffix-old: {outfilesuffix}
-ifdef::env-github[:outfilesuffix: .adoc]
-ifndef::env-github[]
-:idprefix:
-:idseparator: -
-endif::[]
 :revnumber: {project-version}
 
+image:https://coveralls.io/repos/github/sim51/NOQM/badge.svg?branch=master["Coverage Status, link="https://coveralls.io/github/sim51/NOQM?branch=master"]
 image:https://travis-ci.org/sim51/NOQM.svg?branch=master["Build Status", link="https://travis-ci.org/sim51/NOQM"]
 
 == Why this project ?
