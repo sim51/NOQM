@@ -86,7 +86,7 @@ abstract class AbstractNeo4jClientTest extends AbstractUnitTest {
         }
 
         // Check the creation ( /!\ take care of bookmarkid )
-        try (Stream<Record> rs = Neo4jClient.read(
+        try (Stream<Record> rs = Neo4jClient.write(
                 "MATCH (n:Person { name:$name })-[r:ACTED_IN]->(m:Movie { title:$title }) RETURN n,r,m",
                 parameters( "name", "Benoit", "title", "My Favorite film"),
                 bkid)
