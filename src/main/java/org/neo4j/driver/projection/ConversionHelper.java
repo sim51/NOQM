@@ -111,7 +111,7 @@ public class ConversionHelper {
             result = generator.construct();
 
             // Try to set the neo4j internal id
-            generator.add(result, "id", new IntegerValue(node.id()));
+            generator.add(result, "_id", new IntegerValue(node.id()));
 
             // Try to set Neo4j labels
             StringValue[] labels = StreamSupport.stream(node.labels().spliterator(), false).map(item -> new StringValue(item)).toArray(StringValue[]::new);
@@ -136,7 +136,7 @@ public class ConversionHelper {
             result = generator.construct();
 
             // Try to set the Neo4j internal id
-            generator.add(result, "id", new IntegerValue(rel.id()));
+            generator.add(result, "_id", new IntegerValue(rel.id()));
 
             // Try to set Neo4j type
             generator.add(result, "type", new StringValue(rel.type()));

@@ -8,6 +8,7 @@ import org.neo4j.driver.junit.AbstractUnitTest;
 import org.neo4j.driver.junit.CustomNeo4jRule;
 import org.neo4j.driver.projection.pojo.CastingMovie;
 import org.neo4j.driver.projection.pojo.Movie;
+import org.neo4j.driver.projection.pojo.MovieActorCouple;
 import org.neo4j.driver.projection.pojo.Person;
 import org.neo4j.driver.v1.Record;
 import org.neo4j.driver.v1.types.Node;
@@ -106,7 +107,7 @@ public class ProjectionTest extends AbstractUnitTest {
 
             list.forEach((movie) -> {
                 Assert.assertNotNull(movie);
-                Assert.assertNotNull(movie.id);
+                Assert.assertNotNull(movie._id);
                 Assert.assertEquals(1, movie.labels.size());
                 Assert.assertNotNull(movie.title);
             });
@@ -157,14 +158,14 @@ public class ProjectionTest extends AbstractUnitTest {
 
             list.forEach((casting) -> {
                 Assert.assertNotNull(casting.movie);
-                Assert.assertNotNull(casting.movie.id);
+                Assert.assertNotNull(casting.movie._id);
                 Assert.assertEquals(1, casting.movie.labels.size());
                 Assert.assertNotNull(casting.movie.title);
                 Assert.assertNotNull(casting.movie.released);
 
                 Assert.assertNotNull(casting.actors);
                 casting.actors.forEach( (actor) -> {
-                    Assert.assertNotNull(actor.id);
+                    Assert.assertNotNull(actor._id);
                     Assert.assertEquals(1, actor.labels.size());
                     Assert.assertNotNull(actor.name);
                 });
@@ -174,11 +175,23 @@ public class ProjectionTest extends AbstractUnitTest {
     }
 
     @Test
-    public void test_projection_with_rule(){
-        Map<String, Class> h = new LinkedHashMap<String, Class>() {{
-            put("Movie", Movie.class);
-            put("Person", Person.class);
-        }};
+    public void test_projection_as_movie_actor_couple() {
+        try (Stream<Record> rs = Neo4jClient.read("MATCH (m:Movie)<-[r:ACTED_IN]-(p:Person) RETURN m AS movie, p AS actor, r as actedIn")) {
+            List<MovieActorCouple> list = rs.map(Projections.as(MovieActorCouple.class)).collect(Collectors.toList());
 
+            list.forEach((item) -> {
+                Assert.assertNotNull(item.movie);
+                Assert.assertNotNull(item.movie._id);
+                Assert.assertNotNull(item.movie.title);
+                Assert.assertNotNull(item.actor);
+                Assert.assertNotNull(item.actor._id);
+                Assert.assertNotNull(item.actor.name);
+                Assert.assertNotNull(item.actedIn);
+                Assert.assertNotNull(item.actedIn._id);
+                Assert.assertNotNull(item.actedIn.roles);
+                Assert.assertTrue(item.actedIn.roles.size() > 0);
+            });
+        }
     }
+
 }

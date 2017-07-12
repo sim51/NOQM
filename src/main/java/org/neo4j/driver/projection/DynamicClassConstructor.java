@@ -89,6 +89,6 @@ public class DynamicClassConstructor<T> {
      */
     private boolean isSetter(Method method) {
         return Modifier.isPublic(method.getModifiers()) && method.getReturnType().equals(void.class) && method.getParameterTypes().length == 1 && method
-                .getName().matches("^set[A-Z].*");
+                .getName().matches("^set[A-Z_].*");
     }
 }

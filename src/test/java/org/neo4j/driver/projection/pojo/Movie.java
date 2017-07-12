@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class Movie {
 
-    public Long         id;
+    public Long         _id;
     public List<String> labels;
     public String       title;
     public String       tagline;

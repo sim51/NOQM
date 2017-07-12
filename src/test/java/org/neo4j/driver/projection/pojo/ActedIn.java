@@ -4,10 +4,9 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data public class Person {
+@Data
+public class ActedIn {
 
     public Long         _id;
-    public List<String> labels;
-    public String       name;
-    public Integer      born;
+    public List<String> roles;
 }
