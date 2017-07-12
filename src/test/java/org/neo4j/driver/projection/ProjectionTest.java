@@ -117,7 +117,8 @@ public class ProjectionTest extends AbstractUnitTest {
     @Test
     public void test_single_projection_as_primitive_list() {
         try (Stream<Record> rs = Neo4jClient.read("MATCH (n) RETURN collect(n) AS nodes")) {
-            List<Node> result = (List<Node>) rs.map(Projections.singleAs(Node.class)).findFirst().get();
+            List<Node> result = (List<Node>) rs.map(Projections.singleAsListOf(new ArrayList<Node>() {
+            }.getClass())).findFirst().get();
             Assert.assertEquals(169, result.size());
             Assert.assertTrue(result.get(0).id() >= 0);
         }
