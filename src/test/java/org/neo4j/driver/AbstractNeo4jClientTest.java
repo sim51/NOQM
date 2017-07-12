@@ -1,8 +1,8 @@
 package org.neo4j.driver;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.neo4j.driver.exception.Neo4jClientException;
 import org.neo4j.driver.junit.AbstractUnitTest;
 import org.neo4j.driver.junit.CustomNeo4jRule;
 import org.neo4j.driver.v1.Record;

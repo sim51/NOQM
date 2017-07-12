@@ -144,13 +144,13 @@ try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction()) {
 If you don't want to have a stream of `Record`, you can use the *Projection System*.
 It's just a list of some *Map* functions to transform a record to some class.
 
-To use it, you have to *map* the stream with : `Projections.create(MyClass.class)`
+To use it, you have to *map* the stream with : `Projections.as(MyClass.class)`
 
 [source,java]
 ----
 List<Movie> movies = Neo4jClient
     .read("MATCH (n:Movie) RETURN n.title AS title, n.tagline AS tagline, n.released AS released")
-    .map(Projections.create(Movie.class))
+    .map(Projections.as(Movie.class))
     .collect(Collectors.toList())
 ----
 
@@ -175,21 +175,12 @@ On this example, I use the https://projectlombok.org[lombok project] to generate
 The projection system is entirely based on *setter*. It search a method that :
 
 * match the name of a column (for `movie`, it search for `setMovie`)
-* without any returm ( a void method)
-* with only one argument, that type must be a primitive type of the Neo4j driver :
-** String
-** Long
-** Integer
-** Float
-** Boolean
-** Number
-** Double
-** Node
-** Relationship
-** Path
-** List
+* without any return ( a void method)
+* with only one argument
 
+When found, it tries to cast from the driver type to the argument type.
 
+Take a look at this test for more example : `src/text/java/org/neo4j/driver/projection/ProjectionTest`.
 
 == Test requirement
 
