@@ -83,29 +83,13 @@
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p><span class="image"><a class="image" href="https://travis-ci.org/sim51/NOQM"><img src="https://travis-ci.org/sim51/NOQM.svg?branch=master" alt="Build Status"/></a></span></p>
+<p><span class="image"><img src="https://coveralls.io/repos/github/sim51/NOQM/badge.svg?branch=master" alt="Coverage Status, link=" width="https://coveralls.io/github/sim51/NOQM?branch=master""/></span>
+<span class="image"><a class="image" href="https://travis-ci.org/sim51/NOQM"><img src="https://travis-ci.org/sim51/NOQM.svg?branch=master" alt="Build Status"/></a></span></p>
 </div>
-</div>
-<div id="toc" class="toc">
-<div id="toctitle"><b>Table of Contents</b></div>
-<ul class="sectlevel1">
-<li><a href="#why-this-project">Why this project ?</a></li>
-<li><a href="#limitation">Limitation</a></li>
-<li><a href="#installation">Installation</a></li>
-<li><a href="#configuration">Configuration</a></li>
-<li><a href="#how-to-use-it">How to use it ?</a>
-<ul class="sectlevel2">
-<li><a href="#auto-commit-mode">Auto-commit mode</a></li>
-<li><a href="#transaction-mode">Transaction mode</a></li>
-<li><a href="#projection-system">Projection system</a></li>
-</ul>
-</li>
-<li><a href="#test-requirement">Test requirement</a></li>
-</ul>
 </div>
 </div>
 <div class="sect1">
-<h2 id="why-this-project">Why this project ?</h2>
+<h2 id="why_this_project">Why this project ?</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>It&#8217;s not an OGM (object graph mapper), this project is just a stupid client on top of the neo4j java driver.</p>
@@ -247,10 +231,10 @@ You can override those properties, with a second files named : <strong>neo4j-dri
 </div>
 </div>
 <div class="sect1">
-<h2 id="how-to-use-it">How to use it ?</h2>
+<h2 id="how_to_use_it">How to use it ?</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="auto-commit-mode">Auto-commit mode</h3>
+<h3 id="auto_commit_mode">Auto-commit mode</h3>
 <div class="paragraph">
 <p>Just call it like this for a read query</p>
 </div>
@@ -290,7 +274,7 @@ It&#8217;s important to notice, that you have to close the stream (underlying, i
 </div>
 </div>
 <div class="sect2">
-<h3 id="transaction-mode">Transaction mode</h3>
+<h3 id="transaction_mode">Transaction mode</h3>
 <div class="paragraph">
 <p>Firstly you have to create a read or write <code>Transaction</code> within a <code>try-with-resource</code> block.
 Then you can make some queries.</p>
@@ -305,7 +289,7 @@ try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction()) {
 </div>
 </div>
 <div class="sect2">
-<h3 id="projection-system">Projection system</h3>
+<h3 id="projection_system">Projection system</h3>
 <div class="paragraph">
 <p>If you don&#8217;t want to have a stream of <code>Record</code>, you can use the <strong>Projection System</strong>.
 It&#8217;s just a list of some <strong>Map</strong> functions to transform a record to some class.</p>
@@ -367,7 +351,7 @@ public class Movie {
 </div>
 </div>
 <div class="sect1">
-<h2 id="test-requirement">Test requirement</h2>
+<h2 id="test_requirement">Test requirement</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>This project has a dependency on <a href="https://github.com/neo4j-contrib/boltkit">Boltkit</a> for the test.
