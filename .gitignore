@@ -1,3 +1,3 @@
 target/
-neo4j-client.iml
+*.iml
 .idea/
