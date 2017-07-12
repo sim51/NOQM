@@ -1,0 +1,189 @@
+= Neo4j Object Query Mapper
+Benoit Simard <github@bsimard.com>
+:experimental:
+:toc:
+:toc-placement: preamble
+:toc-title: pass:[<b>Table of Contents</b>]
+:outfilesuffix-old: {outfilesuffix}
+ifdef::env-github[:outfilesuffix: .adoc]
+ifndef::env-github[]
+:idprefix:
+:idseparator: -
+endif::[]
+:revnumber: {project-version}
+
+image:https://travis-ci.org/sim51/NOQM.svg?branch=master["Build Status", link="https://travis-ci.org/sim51/NOQM"]
+
+== Why this project ?
+
+It's not an OGM (object graph mapper), this project is just a stupid client on top of the neo4j java driver.
+
+* Simple and small Neo4j client
+* Singleton for the Neo4j Driver (as needed)
+* Simple and single configuration file
+* Easy to switch from single to cluster architecture
+* Using java stream (for now the neo4j java driver doesn't used it, but it should appears in a future)
+* Stupid query object mapping, via a projection system
+
+== Limitation
+
+* You can use only one Neo4j database.
+* You can't make multi-transaction on the same session. This can be useful on cluster mode, but you can manage it with bookmarkId.
+
+== Installation
+
+Firstly you have to add the maven repository of the project to your *pom.xml* :
+
+[source,xml]
+----
+<repositories>
+    <repository>
+        <id>NOQM-mvn-repo</id>
+        <url>https://raw.github.com/sim51/NOQM/mvn-repo/</url>
+        <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>always</updatePolicy>
+        </snapshots>
+    </repository>
+</repositories>
+----
+
+Then you can add the dependency :
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.neo4j.contrib</groupId>
+    <artifactId>NOQM</artifactId>
+    <version>1.0-SNAPSHOT</version>
+</dependency>
+----
+
+== Configuration
+
+All the configuration comes from one file : **neo4j-driver.properties**
+This should be at the root of the classpath.
+
+[source,properties]
+----
+# Neo4j driver url
+neo4j.url=bolt://localhost
+
+neo4j.user=neo4j
+neo4j.password=test
+
+# (int) Max number of idle connection into the pool
+#neo4j.maxIdleConnectionPoolSize=5
+
+# (long) Threshold of idle time from which we test a connection (in seconds)
+#neo4j.idleTimeBeforeConnectionTest=0
+
+# (boolean) Do we log leaked session ?
+#neo4j.logLeakedSessions=true
+
+# (boolean) Traffic encrypted ?
+#neo4j.encrypted=false
+
+# Valid values are :
+#  - ALL : Trust strategy for certificates that can be verified through the local system store.
+#  - SYSTEM : Trust strategy for certificates that can be verified through the local system store.
+#  - A certificate file (ex: /etc/ssl/mycert.cet)
+#neo4j.trustStrategy=ALL
+
+# Specify socket connection timeout in millisecond
+#neo4j.connectionTimeoutMillis=5000
+----
+
+NOTE: To make this configuration dynamic, you can use some maven filters
+
+IMPORTANT: You can override those properties, with a second files named : **neo4j-driver-ext.properties** . This file must be also at the root of the classpath, like into the **shared/classes/** folder of a tomcat server.
+
+== How to use it ?
+
+=== Auto-commit mode
+
+Just call it like this for a read query
+
+[source,java]
+----
+import org.neo4j.driver.*
+import static org.neo4j.driver.v1.Values.parameters;
+...
+try(Stream<Record> rs = Neo4jClient.read("MATCH (n:Person { name:$name, born:$born }) RETURN n", parameters( "name", "Keanu Reeves", "born", 1964 ))) {
+    rs.forEach((record) -> {
+       System.out.println(record);
+   });
+}
+----
+
+And for a write query :
+
+[source,java]
+----
+Neo4jClient
+    .write("CREATE (n:Person { name:$name, born:$born }) RETURN n", parameters( "name", "Keanu Reeves", "born", 1964 ))
+    .close();
+----
+
+IMPORTANT: It's important to notice, that you have to close the stream (underlying, it's closing the session), with a `try-with-resource` or by calling the the stream's `close` method.
+
+=== Transaction mode
+
+Firstly you have to create a read or write `Transaction` within a `try-with-resource` block.
+Then you can make some queries.
+
+[source,java]
+----
+String bookmarkId = null;
+try ( Neo4jTransaction tx = Neo4jClient.getWriteTransaction()) {
+    tx.run("CREATE (me:Person { name:$name, born:$born }) RETURN me", parameters( "name", "Benoit", "born", 1983 )).close();
+}
+----
+
+=== Projection system
+
+If you don't want to have a stream of `Record`, you can use the *Projection System*.
+It's just a list of some *Map* functions to transform a record to some class.
+
+To use it, you have to *map* the stream with : `Projections.as(MyClass.class)`
+
+[source,java]
+----
+List<Movie> movies = Neo4jClient
+    .read("MATCH (n:Movie) RETURN n.title AS title, n.tagline AS tagline, n.released AS released")
+    .map(Projections.as(Movie.class))
+    .collect(Collectors.toList())
+----
+
+Where `Movie` is a simple object :
+
+[source,java]
+----
+package org.neo4j.driver.projection.pojo;
+
+import lombok.Data;
+
+@Data
+public class Movie {
+    public String title;
+    public String tagline;
+    public Integer released;
+}
+----
+
+On this example, I use the https://projectlombok.org[lombok project] to generate all setters of this class.
+
+The projection system is entirely based on *setter*. It search a method that :
+
+* match the name of a column (for `movie`, it search for `setMovie`)
+* without any return ( a void method)
+* with only one argument
+
+When found, it tries to cast from the driver type to the argument type.
+
+Take a look at this test for more example : `src/text/java/org/neo4j/driver/projection/ProjectionTest`.
+
+== Test requirement
+
+This project has a dependency on https://github.com/neo4j-contrib/boltkit[Boltkit] for the test.
+So you have to install it before to launch tests.
