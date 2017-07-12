@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isSetter(Method method) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> Modifier.isPublic(method.getModifiers()) &amp;&amp; method.getReturnType().equals(<strong class="jxr_keyword">void</strong>.<strong class="jxr_keyword">class</strong>) &amp;&amp; method.getParameterTypes().length == 1 &amp;&amp; method
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  .getName().matches(<span class="jxr_string">"^set[A-Z].*"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  .getName().matches(<span class="jxr_string">"^set[A-Z_].*"</span>);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>  }
 </pre>
