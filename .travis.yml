@@ -23,7 +23,7 @@ after_success:
   - eval "$(ssh-agent -s)" #start the ssh agent
   - chmod 600 .travisdeploykey
   - ssh-add .travisdeploykey
-  - if [[ "$TRAVIS_PULL_REQUEST" = "false"  && "$TRAVIS_BRANCH" == "master" ]]; then mvn site; fi
+  - if [[ "$TRAVIS_PULL_REQUEST" = "false"  && "$TRAVIS_BRANCH" == "master" ]]; then mvn site -Dmaven.test.skip=true; fi
   - if [[ "$TRAVIS_PULL_REQUEST" = "false"  && "$NEO4J_VERSION" == "2.3.2" && "$TRAVIS_JDK_VERSION" == "openjdk7" &&  "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then mvn clean cobertura:cobertura coveralls:report -Pcoverage -Dcoverall.token=$COVERALL_TOKEN; fi
 
 notifications:
