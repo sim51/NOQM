@@ -84,7 +84,7 @@
         <maven.plugin.site>3.6</maven.plugin.site>
         <maven.plugin.site.github>0.12</maven.plugin.site.github>
         <maven.plugin.jxr>2.5</maven.plugin.jxr>
-        <maven.plugin.surefire>2.20</maven.plugin.surefire>
+        <maven.plugin.surefire>2.19.1</maven.plugin.surefire>
         <maven.plugin.javadoc>2.10.4</maven.plugin.javadoc>
         <maven.plugin.checkstyle>2.17</maven.plugin.checkstyle>
         <maven.plugin.projectinfo>2.9</maven.plugin.projectinfo>
