@@ -9,7 +9,7 @@ os:
   - linux
 sudo: required
 
-mavenbefore_install:
+before_install:
   - sudo apt-get -qq update
   - sudo apt-get install python-pip
   - sudo pip install --upgrade boltkit
