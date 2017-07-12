@@ -1,0 +1,24 @@
+-classpath
+'/home/bsimard/.m2/repository/org/neo4j/driver/neo4j-java-driver/1.4.0/neo4j-java-driver-1.4.0.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'/home/bsimard/worspaces/neo4j/NOQM/src/main/java:/home/bsimard/worspaces/neo4j/NOQM/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2017. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'/home/bsimard/worspaces/neo4j/NOQM/target/site/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'noqm 1.0-SNAPSHOT API'
+-linkoffline
+'http://docs.oracle.com/javase/8/docs/api' '/home/bsimard/worspaces/neo4j/NOQM/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'noqm 1.0-SNAPSHOT API'
