@@ -15,10 +15,10 @@
 -docencoding
 'UTF-8'
 -doctitle
-'noqm 1.0 API'
+'noqm 1.0-SNAPSHOT API'
 -linkoffline
 'http://docs.oracle.com/javase/8/docs/api' '/home/travis/build/sim51/NOQM/target/javadoc-bundle-options'
 -use
 -version
 -windowtitle
-'noqm 1.0 API'
+'noqm 1.0-SNAPSHOT API'
