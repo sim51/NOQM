@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.neo4j.contrib</groupId>
+    <artifactId>noqm</artifactId>
+    <version>1.1-SNAPSHOT</version>
+
+    <!-- =========== -->
+    <!-- = License = -->
+    <!-- =========== -->
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>https://raw.githubusercontent.com/sim51/noqm/master/LICENSE</url>
+        </license>
+    </licenses>
+
+    <!-- ======= -->
+    <!-- = SCM = -->
+    <!-- ======= -->
+    <scm>
+        <url>https://github.com/sim51/NOQM</url>
+        <connection>scm:git:git://github.com/sim51/NOQM.git</connection>
+        <developerConnection>scm:git:git@github.com:sim51/NOQM.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
+
+    <!-- ============== -->
+    <!-- = Bugtracker = -->
+    <!-- ============== -->
+    <issueManagement>
+        <system>Github</system>
+        <url>https://github.com/sim51/NOQM/issues</url>
+    </issueManagement>
+
+    <!-- ====================== -->
+    <!-- = Project developers = -->
+    <!-- ====================== -->
+    <developers>
+        <developer>
+            <id>bsimard</id>
+            <name>Benoît Simard</name>
+            <email>github@bsimard.com</email>
+        </developer>
+    </developers>
+
+    <!-- ============== -->
+    <!-- = Properties = -->
+    <!-- ============== -->
+    <properties>
+        <!-- Deps version -->
+        <neo4j.version>3.2.2</neo4j.version>
+        <neo4j.driver.version>1.4.1</neo4j.driver.version>
+        <junit.version>4.12</junit.version>
+        <lombok.version>1.16.18</lombok.version>
+
+        <!-- Project configuration  -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+
+        <!-- maven plugin configuration  -->
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
+        <!-- github server corresponds to entry in ~/.m2/settings.xml -->
+        <!--
+            <settings>
+                 <servers>
+                     <server>
+                         <id>github</id>
+                         <password>Generated token by `Personal access token`</password>
+                     </server>
+                 </servers>
+             </settings>
+        -->
+        <github.global.server>github</github.global.server>
+        <github.repo.owner>sim51</github.repo.owner>
+        <github.repo.name>NOQM</github.repo.name>
+
+        <!-- maven plugin version -->
+        <maven.plugin.deploy>2.8.2</maven.plugin.deploy>
+        <maven.plugin.site>3.6</maven.plugin.site>
+        <maven.plugin.site.github>0.12</maven.plugin.site.github>
+        <maven.plugin.jxr>2.5</maven.plugin.jxr>
+        <maven.plugin.surefire>2.19.1</maven.plugin.surefire>
+        <maven.plugin.javadoc>2.10.4</maven.plugin.javadoc>
+        <maven.plugin.source>3.0.1</maven.plugin.source>
+        <maven.plugin.checkstyle>2.17</maven.plugin.checkstyle>
+        <maven.plugin.projectinfo>2.9</maven.plugin.projectinfo>
+        <maven.plugin.pmd>3.8</maven.plugin.pmd>
+        <maven.plugin.findbugs>3.0.4</maven.plugin.findbugs>
+        <maven.plugin.version>2.4</maven.plugin.version>
+        <maven.plugin.taglist>2.4</maven.plugin.taglist>
+        <maven.plugin.changelog>2.3</maven.plugin.changelog>
+        <maven.plugin.cobertura>2.7</maven.plugin.cobertura>
+        <maven.plugin.coverall>4.1.0</maven.plugin.coverall>
+        <maven.plugin.asciidoctor>1.5.5</maven.plugin.asciidoctor>
+        <maven.plugin.scm-publish>1.1</maven.plugin.scm-publish>
+        <maven.plugin.release>2.5.3</maven.plugin.release>
+
+        <!-- Asciidoctor version -->
+        <asciidoctorj.version>1.5.5</asciidoctorj.version>
+        <jruby.version>1.7.22</jruby.version>
+
+        <!-- Maven site skin -->
+        <site.skin.groupId>org.apache.maven.skins</site.skin.groupId>
+        <site.skin.artifactId>maven-fluido-skin</site.skin.artifactId>
+        <site.skin.version>1.6</site.skin.version>
+
+    </properties>
+
+    <!-- ================ -->
+    <!-- = Dependencies = -->
+    <!-- ================ -->
+    <dependencies>
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>${neo4j.driver.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.driver</groupId>
+            <artifactId>neo4j-java-driver</artifactId>
+            <version>${neo4j.driver.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.test</groupId>
+            <artifactId>neo4j-harness-enterprise</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <!-- ========= -->
+    <!-- = Build = -->
+    <!-- ========= -->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven.plugin.release}</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${maven.plugin.source}</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.plugin.javadoc}</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Deploy artifact on a specific github branch as a maven repository -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${maven.plugin.deploy}</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file://${project.build.directory}/mvn-repo</altDeploymentRepository>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+                <version>${maven.plugin.site.github}</version>
+                <configuration>
+                    <!-- git commit message -->
+                    <message>Maven artifacts for ${project.version}</message>
+                    <!-- disable webpage processing -->
+                    <noJekyll>true</noJekyll>
+                    <!-- merge -->
+                    <merge>true</merge>
+                    <!-- matches distribution management repository url above -->
+                    <outputDirectory>${project.build.directory}/mvn-repo</outputDirectory>
+                    <!-- remote branch name -->
+                    <branch>refs/heads/mvn-repo</branch>
+                    <includes><include>**/*</include></includes>
+                    <!-- github repo name -->
+                    <repositoryName>${github.repo.name}</repositoryName>
+                    <!-- github username  -->
+                    <repositoryOwner>${github.repo.owner}</repositoryOwner>
+                </configuration>
+                <executions>
+                    <!-- run site-maven-plugin's 'site' target as part of the build's normal 'deploy' phase -->
+                    <execution>
+                        <goals>
+                            <goal>site</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Maven site/reporting configuration -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven.plugin.site}</version>
+                <configuration>
+                    <generateReports>true</generateReports>
+                    <generateSitemap>true</generateSitemap>
+                    <relativizeDecorationLinks>false</relativizeDecorationLinks>
+                    <locales>en</locales>
+                    <inputEncoding>UTF-8</inputEncoding>
+                    <outputEncoding>UTF-8</outputEncoding>
+                    <locales>en</locales>
+                    <asciidoc>
+                        <attributes>
+                            <project-version>${project.version}</project-version>
+                            <project-artifactId>${project.artifactId}</project-artifactId>
+                            <neo4j-version>${neo4j.version}</neo4j-version>
+                        </attributes>
+                    </asciidoc>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>attach-descriptor</id>
+                        <goals>
+                            <goal>attach-descriptor</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <!-- Just a hack for now to force this lib on version 1.7-->
+                    <dependency>
+                        <groupId>org.apache.maven.doxia</groupId>
+                        <artifactId>doxia-core</artifactId>
+                        <version>1.7</version>
+                    </dependency>
+                    <!-- Generate site with asciidoctor -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctor-maven-plugin</artifactId>
+                        <version>${maven.plugin.asciidoctor}</version>
+                    </dependency>
+                    <!-- Comment this section to use the default jruby artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.jruby</groupId>
+                        <artifactId>jruby-complete</artifactId>
+                        <version>${jruby.version}</version>
+                    </dependency>
+                    <!-- Comment this section to use the default AsciidoctorJ artifact provided by the plugin -->
+                    <dependency>
+                        <groupId>org.asciidoctor</groupId>
+                        <artifactId>asciidoctorj</artifactId>
+                        <version>${asciidoctorj.version}</version>
+                    </dependency>
+                    <!-- Adding custom skin -->
+                    <dependency>
+                        <groupId>${site.skin.groupId}</groupId>
+                        <artifactId>${site.skin.artifactId}</artifactId>
+                        <version>${site.skin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!-- Deploy site on github gh-pages -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <version>${maven.plugin.scm-publish}</version>
+                <configuration>
+                    <checkinComment>Publishing Site Docs for ${project.artifactId}:${project.version}</checkinComment>
+                    <content>${project.reporting.outputDirectory}</content>
+                    <scmBranch>gh-pages</scmBranch>
+                    <tryUpdate>true</tryUpdate>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>scm-publish</id>
+                        <phase>site</phase>
+                        <goals>
+                            <goal>publish-scm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- ============= -->
+    <!-- = Reporting = -->
+    <!-- ============= -->
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>${maven.plugin.jxr}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>${maven.plugin.surefire}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.plugin.javadoc}</version>
+                <configuration>
+                    <failOnError>false</failOnError>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.plugin.checkstyle}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven.plugin.projectinfo}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven.plugin.pmd}</version>
+                <configuration>
+                    <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
+                    <!-- The minimum tokens before a violation -->
+                    <minimumTokens>100</minimumTokens>
+                    <!-- Turn off if no xref report -->
+                    <linkXRef>true</linkXRef>
+                    <verbose>true</verbose>
+                    <targetJdk>${java.version}</targetJdk>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <version>${maven.plugin.findbugs}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${maven.plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>taglist-maven-plugin</artifactId>
+                <version>${maven.plugin.taglist}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changelog-plugin</artifactId>
+                <version>${maven.plugin.changelog}</version>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <!-- =========== -->
+    <!-- = Profile = -->
+    <!-- =========== -->
+    <profiles>
+
+        <!-- Create the code coverage and publish it on coverall -->
+        <profile>
+            <id>coverage</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>cobertura-maven-plugin</artifactId>
+                        <version>${maven.plugin.cobertura}</version>
+                        <configuration>
+                            <format>xml</format>
+                            <maxmem>256m</maxmem>
+                            <!-- aggregated reports for multi-module projects -->
+                            <aggregate>true</aggregate>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.eluder.coveralls</groupId>
+                        <artifactId>coveralls-maven-plugin</artifactId>
+                        <version>${maven.plugin.coverall}</version>
+                        <configuration>
+                            <repoToken>${coverall.token}</repoToken>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
+    <!-- =========================== -->
+    <!-- = Distribution management = -->
+    <!-- =========================== -->
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+        <site>
+            <id>github-site</id>
+            <url>scm:git:git@github.com:sim51/NOQM.git</url>
+        </site>
+    </distributionManagement>
+
+</project>
