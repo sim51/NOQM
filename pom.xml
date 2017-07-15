@@ -157,6 +157,7 @@
                 <version>${maven.plugin.release}</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <goals>deploy</goals>
                 </configuration>
             </plugin>
             <plugin>
