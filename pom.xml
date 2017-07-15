@@ -4,7 +4,7 @@
 
     <groupId>org.neo4j.contrib</groupId>
     <artifactId>noqm</artifactId>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <!-- =========== -->
     <!-- = License = -->
@@ -23,7 +23,7 @@
         <url>https://github.com/sim51/NOQM</url>
         <connection>scm:git:git://github.com/sim51/NOQM.git</connection>
         <developerConnection>scm:git:git@github.com:sim51/NOQM.git</developerConnection>
-      <tag>v1.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <!-- ============== -->
